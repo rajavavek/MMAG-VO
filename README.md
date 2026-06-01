@@ -1,74 +1,111 @@
-# MMAG-VO Paper Code
+# MMAG-VO: Monocular Robot Odometry with Depth, Semantics, and Uncertainty Fusion
 
-This repository is a faithful, research-oriented implementation scaffold for the uploaded paper **“Model Generated Spatial and Contextual Information for Accurate Monocular Robot Odometry.”**
+This repository provides a research implementation of **“Model Generated Spatial and Contextual Information for Accurate Monocular Robot Odometry.”**
 
-Implemented components match the paper pipeline:
+The project implements a monocular visual odometry pipeline that combines joint depth estimation, semantic segmentation, feature-based geometric tracking, learning-based pose regression, and uncertainty-aware pose fusion.
 
-1. **MMAG joint depth + semantic segmentation network**
-   - Modified encoder/decoder backbone.
-   - Shared Modified Multi-Attention Gates for depth and segmentation decoders.
-   - Depth head, segmentation head, and intermediate MMAG feature output.
-2. **Depth-enhanced ORB visual odometry**
-   - Python/OpenCV RGB-D-style ORB tracker using predicted monocular depth.
-   - Descriptor threshold and depth consistency filtering as described in the paper.
-   - PnP-RANSAC pose estimation and covariance approximation.
-3. **CNN-GRU visual odometry**
-   - Uses intermediate MMAG features rather than raw RGB.
-   - Five CNN blocks + two stacked GRU layers + 6-DoF pose regression head.
-4. **Uncertainty-aware fusion**
-   - Fuses ORB and GRU twist coordinates with covariance-weighted averaging.
-5. **Training/evaluation/inference scripts**
-   - NYU-Depth-v2, CamVid, and KITTI-style dataset loaders.
-   - Losses and metrics matching the equations in the paper.
+## Overview
 
-## Important reproducibility note
+The pipeline takes monocular RGB image sequences as input and produces:
 
-The uploaded PDF describes the architecture and reports results, but it does **not** include trained weights, exact train/val split files, all preprocessing details, or the modified C++ ORB-SLAM2 source. Therefore this zip contains executable code and paper-matched configuration, but it cannot include pretrained models that were not present in the paper. The folder `results/paper_reported_metrics.json` stores the paper-reported numbers as reference targets.
+- Dense depth maps
+- Semantic segmentation maps
+- Relative camera poses
+- Fused visual odometry trajectories
 
-For exact numerical reproduction, train on the same dataset versions and preprocessing pipeline, then compare with:
+The implementation is organized around four main components:
+
+1. **MMAG depth and segmentation network**  
+   A shared encoder-decoder model with Modified Multi-Attention Gates for joint monocular depth estimation and semantic segmentation.
+
+2. **Depth-enhanced ORB visual odometry**  
+   A Python/OpenCV RGB-D-style ORB tracker that uses predicted monocular depth for keypoint back-projection, depth consistency filtering, PnP-RANSAC pose estimation, and covariance approximation.
+
+3. **CNN-GRU visual odometry**  
+   A learning-based visual odometry module that estimates 6-DoF relative pose from intermediate MMAG feature maps using convolutional feature compression and stacked GRU layers.
+
+4. **Uncertainty-aware pose fusion**  
+   A covariance-weighted fusion module that combines geometric ORB-based pose estimates with CNN-GRU pose predictions in Lie algebra space.
+
+## Key Features
+
+- Joint depth estimation and semantic segmentation using shared MMAG attention.
+- Depth consistency filtering for ORB feature matching.
+- CNN-GRU pose regression from MMAG intermediate representations.
+- Covariance-based fusion of geometric and learned visual odometry estimates.
+- Dataset loaders for NYU-Depth-v2, CamVid, and KITTI-style odometry data.
+- Training, evaluation, and inference entry points.
+- Paper-reported reference metrics stored for comparison.
+
+## Reproducibility Notice
+
+The paper describes the model architecture, training objectives, evaluation metrics, and reported results. However, the paper does not provide pretrained model weights, exact preprocessing scripts, train/validation split files, or the full modified C++ ORB-SLAM2 implementation.
+
+This repository therefore provides a structured, executable implementation aligned with the paper methodology. Exact numerical reproduction requires training on the same dataset versions, preprocessing pipeline, camera calibration files, and evaluation protocol used in the original experiments.
+
+Paper-reported reference metrics are available in:
+
+```text
+results/paper_reported_metrics.json
+```
+
+To display the reported reference metrics:
 
 ```bash
-python -m mmag_vo.utils.print_paper_results --json results/paper_reported_metrics.json
+python -m mmag_vo.utils.print_paper_results \
+  --json results/paper_reported_metrics.json
 ```
 
 ## Installation
 
 ```bash
-cd mmag_vo_paper_code
+git clone https://github.com/YOUR_USERNAME/MMAG-VO.git
+cd MMAG-VO
+
 python -m venv .venv
 source .venv/bin/activate
-pip install -U pip
+
+pip install --upgrade pip
 pip install -e .
 pip install -r requirements.txt
 ```
 
-## Dataset layout
+## Dataset Layout
 
-The loaders accept configurable layouts, but the default config expects:
+The default configuration expects the following structure:
 
 ```text
 DATA_ROOT/
   nyu_depth_v2/
     train.txt
     test.txt
-    images/*.png
-    depths/*.npy or depths/*.png
-    labels/*.png
+    images/
+    depths/
+    labels/
+
   camvid/
     train.txt
     test.txt
-    images/*.png
-    labels/*.png
-    depths/*.npy or depths/*.png   # optional, only if depth supervision exists
+    images/
+    labels/
+    depths/                 # optional, required only when depth supervision is available
+
   kitti_odometry/
-    sequences/00/image_2/*.png
-    sequences/01/image_2/*.png
-    ...
-    poses/00.txt
-    poses/01.txt
+    sequences/
+      00/
+        image_2/
+      01/
+        image_2/
+      ...
+    poses/
+      00.txt
+      01.txt
+      ...
 ```
 
-## Train MMAG depth + segmentation
+Depth files may be stored as `.npy` arrays or depth images, depending on the dataset preprocessing configuration.
+
+## Train MMAG Depth and Segmentation Model
 
 ```bash
 python -m mmag_vo.training.train_mmag \
@@ -77,7 +114,9 @@ python -m mmag_vo.training.train_mmag \
   --output runs/mmag_full
 ```
 
-## Train CNN-GRU VO
+The MMAG model jointly optimizes depth estimation and semantic segmentation using the configured depth, segmentation, gradient, structural similarity, and Lovász-style objectives.
+
+## Train CNN-GRU Visual Odometry Model
 
 ```bash
 python -m mmag_vo.training.train_vo_gru \
@@ -87,7 +126,9 @@ python -m mmag_vo.training.train_vo_gru \
   --output runs/vo_gru
 ```
 
-## Run full inference
+The CNN-GRU model uses intermediate MMAG features as input and predicts relative 6-DoF camera motion.
+
+## Run Full Inference Pipeline
 
 ```bash
 python -m mmag_vo.inference.run_pipeline \
@@ -98,34 +139,70 @@ python -m mmag_vo.inference.run_pipeline \
   --output outputs/seq00
 ```
 
-Outputs:
+Expected output structure:
 
 ```text
 outputs/seq00/
-  depth/*.npy
-  depth_vis/*.png
-  seg/*.png
+  depth/
+  depth_vis/
+  seg/
   trajectory.txt
   per_frame_pose.npy
 ```
 
-## External ORB-SLAM2 option
+## ORB-SLAM2 Integration
 
-The paper uses a modified ORB-SLAM2 in RGB-D mode. This repository includes a Python/OpenCV replacement (`DepthEnhancedORBVO`) and an adapter stub (`ExternalORBSLAM2Adapter`) for users who have a compiled ORB-SLAM2 binary. Place external code separately under `third_party/ORB_SLAM2` if needed.
+The paper uses ORB-SLAM2 in RGB-D mode with predicted monocular depth. This repository includes a Python/OpenCV implementation, `DepthEnhancedORBVO`, for reproducible experimentation without requiring a compiled ORB-SLAM2 dependency.
 
-## Repository map
+For users who want to connect an external ORB-SLAM2 build, the repository also provides an adapter interface:
 
 ```text
-configs/                         Hyperparameters and intrinsics templates
-src/mmag_vo/models/mmag.py        MMAG model
-src/mmag_vo/models/vo_gru.py      CNN-GRU visual odometry model
-src/mmag_vo/vo/orb_depth.py       Predicted-depth ORB tracking
-src/mmag_vo/models/fusion.py      Lie/twist fusion utilities
-src/mmag_vo/losses/               Depth, segmentation, VO losses
-src/mmag_vo/metrics/              Depth, segmentation, odometry metrics
+src/mmag_vo/vo/external_orbslam2.py
+```
+
+External ORB-SLAM2 code should be placed outside the package source tree, for example:
+
+```text
+third_party/ORB_SLAM2/
+```
+
+## Repository Structure
+
+```text
+configs/                         Configuration files and camera intrinsics templates
+results/                         Paper-reported reference metrics
+scripts/                         Utility scripts
 src/mmag_vo/data/                 Dataset loaders and transforms
-src/mmag_vo/training/             Training entry points
 src/mmag_vo/evaluation/           Evaluation entry points
 src/mmag_vo/inference/            Full pipeline inference
-results/                          Paper-reported reference metrics
+src/mmag_vo/losses/               Depth, segmentation, and VO losses
+src/mmag_vo/metrics/              Depth, segmentation, and odometry metrics
+src/mmag_vo/models/mmag.py        MMAG depth and segmentation network
+src/mmag_vo/models/vo_gru.py      CNN-GRU visual odometry network
+src/mmag_vo/models/fusion.py      Pose fusion and Lie algebra utilities
+src/mmag_vo/training/             Training entry points
+src/mmag_vo/vo/orb_depth.py       Depth-enhanced ORB visual odometry
+tests/                            Basic unit and integration tests
 ```
+
+## Evaluation
+
+Depth, segmentation, and odometry evaluation scripts are provided under:
+
+```text
+src/mmag_vo/evaluation/
+```
+
+Typical metrics include:
+
+- Depth: AbsRel, SqRel, RMS, RMS-log, and threshold accuracy.
+- Segmentation: mean Intersection over Union.
+- Odometry: translational error, rotational error, and absolute trajectory error.
+
+## License
+
+This project is released under the MIT License. See `LICENSE` for details.
+
+## Citation
+
+If you use this implementation in academic work, cite the original paper and reference this repository as the implementation source.

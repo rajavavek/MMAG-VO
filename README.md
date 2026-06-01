@@ -37,11 +37,6 @@ The implementation is organized around four main components:
 - Training, evaluation, and inference entry points.
 - Paper-reported reference metrics stored for comparison.
 
-## Reproducibility Notice
-
-The paper describes the model architecture, training objectives, evaluation metrics, and reported results. However, the paper does not provide pretrained model weights, exact preprocessing scripts, train/validation split files, or the full modified C++ ORB-SLAM2 implementation.
-
-This repository therefore provides a structured, executable implementation aligned with the paper methodology. Exact numerical reproduction requires training on the same dataset versions, preprocessing pipeline, camera calibration files, and evaluation protocol used in the original experiments.
 
 Paper-reported reference metrics are available in:
 
@@ -59,7 +54,7 @@ python -m mmag_vo.utils.print_paper_results \
 ## Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/MMAG-VO.git
+git clone https://github.com/rajavavek/MMAG-VO.git
 cd MMAG-VO
 
 python -m venv .venv
@@ -152,15 +147,13 @@ outputs/seq00/
 
 ## ORB-SLAM2 Integration
 
-The paper uses ORB-SLAM2 in RGB-D mode with predicted monocular depth. This repository includes a Python/OpenCV implementation, `DepthEnhancedORBVO`, for reproducible experimentation without requiring a compiled ORB-SLAM2 dependency.
-
-For users who want to connect an external ORB-SLAM2 build, the repository also provides an adapter interface:
+ ORB-SLAM2 in RGB-D mode with predicted monocular depth. This repository includes a Python/OpenCV implementation, `DepthEnhancedORBVO`, for reproducible experimentation without requiring a compiled ORB-SLAM2 dependency.
 
 ```text
 src/mmag_vo/vo/external_orbslam2.py
 ```
 
-External ORB-SLAM2 code should be placed outside the package source tree, for example:
+External ORB-SLAM2 example:
 
 ```text
 third_party/ORB_SLAM2/
@@ -199,10 +192,3 @@ Typical metrics include:
 - Segmentation: mean Intersection over Union.
 - Odometry: translational error, rotational error, and absolute trajectory error.
 
-## License
-
-This project is released under the MIT License. See `LICENSE` for details.
-
-## Citation
-
-If you use this implementation in academic work, cite the original paper and reference this repository as the implementation source.

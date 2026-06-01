@@ -1,0 +1,41 @@
+seed: 42
+device: cuda
+image_size: [384, 640]
+num_seg_classes: 40
+model:
+  encoder_channels: [64, 128, 256, 512]
+  decoder_feature_channels: 256
+  attention_intermediate_channels: 64
+  dropout: 0.1
+  min_depth: 0.01
+training:
+  epochs: 120
+  batch_size: 6
+  num_workers: 8
+  optimizer: adamw
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  grad_clip_norm: 5.0
+  amp: true
+loss:
+  lambda_grad: 0.5
+  lambda_ssim: 0.3
+  lambda_lovasz: 0.5
+  lambda_depth: 1.0
+  lambda_seg_initial: 1.0
+  lambda_seg_final: 0.0
+  ignore_index: 255
+data:
+  train_dataset: nyu
+  val_dataset: nyu
+  nyu:
+    root: nyu_depth_v2
+    train_split: train.txt
+    val_split: test.txt
+  camvid:
+    root: camvid
+    train_split: train.txt
+    val_split: test.txt
+checkpoint:
+  save_every: 5
+  monitor: val_depth_rms

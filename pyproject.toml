@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mmag-vo"
+version = "0.1.0"
+description = "MMAG depth/segmentation and monocular visual odometry implementation based on the uploaded paper."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{name = "Generated research implementation"}]
+license = {text = "MIT"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

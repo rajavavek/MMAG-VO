@@ -1,0 +1,8 @@
+# KITTI odometry sequence 00 color camera example intrinsics.
+# Replace with calibration file values for other sequences/cameras.
+fx: 718.856
+fy: 718.856
+cx: 607.1928
+cy: 185.2157
+width: 1241
+height: 376

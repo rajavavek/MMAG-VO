@@ -1,0 +1,136 @@
+{
+  "depth_nyu_table_2": {
+    "Ours_MMAG": {
+      "delta1": 0.833,
+      "delta2": 0.962,
+      "delta3": 0.991,
+      "rms": 0.462,
+      "rms_log": 0.141,
+      "absrel": 0.112,
+      "sqrel": 0.094
+    }
+  },
+  "depth_camvid_table_3": {
+    "Ours_MMAG": {
+      "delta1": 0.815,
+      "delta2": 0.928,
+      "delta3": 0.961,
+      "rms": 2.341,
+      "rms_log": 0.172,
+      "absrel": 0.198,
+      "sqrel": 1.543
+    }
+  },
+  "segmentation_table_4": {
+    "Ours_MMAG": {
+      "nyu_miou": 0.538,
+      "camvid_miou": 0.831
+    }
+  },
+  "vo_kitti_table_5": {
+    "ORB_SLAM2_stereo": {
+      "input": "Stereo RGB",
+      "trel_percent": 0.0123,
+      "rrel_deg_per_100m": 0.0017
+    },
+    "Ours_MMAG_ORB_SLAM2": {
+      "input": "Monocular RGB",
+      "trel_percent": 0.0119,
+      "rrel_deg_per_100m": 0.0016
+    },
+    "Ours_MMAG_CNN_GRU": {
+      "input": "Monocular RGB",
+      "trel_percent": 0.0164,
+      "rrel_deg_per_100m": 0.0022
+    },
+    "Ours_Fused": {
+      "input": "Monocular RGB",
+      "trel_percent": 0.0108,
+      "rrel_deg_per_100m": 0.0014
+    }
+  },
+  "mmag_ablation_table_7": {
+    "Baseline_no_attention": {
+      "depth_rms": 0.584,
+      "depth_absrel": 0.148,
+      "seg_miou": 0.482,
+      "params_m": 18.2
+    },
+    "Skip_connections_only": {
+      "depth_rms": 0.536,
+      "depth_absrel": 0.132,
+      "seg_miou": 0.501,
+      "params_m": 18.2
+    },
+    "Standard_attention_separate": {
+      "depth_rms": 0.512,
+      "depth_absrel": 0.125,
+      "seg_miou": 0.517,
+      "params_m": 22.4
+    },
+    "MMAG_shared_attention": {
+      "depth_rms": 0.489,
+      "depth_absrel": 0.119,
+      "seg_miou": 0.525,
+      "params_m": 19.8
+    },
+    "MMAG_gradient_loss": {
+      "depth_rms": 0.472,
+      "depth_absrel": 0.114,
+      "seg_miou": 0.531,
+      "params_m": 19.8
+    },
+    "MMAG_all_losses_full": {
+      "depth_rms": 0.462,
+      "depth_absrel": 0.112,
+      "seg_miou": 0.538,
+      "params_m": 19.8
+    }
+  },
+  "vo_ablation_table_8": {
+    "ORB_SLAM2_RGB_monocular": {
+      "trel_percent": 0.028,
+      "rrel_deg_per_100m": 0.0042,
+      "ate_m": 8.42
+    },
+    "ORB_SLAM2_ground_truth_depth": {
+      "trel_percent": 0.011,
+      "rrel_deg_per_100m": 0.0014,
+      "ate_m": 3.21
+    },
+    "ORB_SLAM2_MMAG_depth": {
+      "trel_percent": 0.0135,
+      "rrel_deg_per_100m": 0.0019,
+      "ate_m": 4.15
+    },
+    "CNN_GRU_RGB_only": {
+      "trel_percent": 0.024,
+      "rrel_deg_per_100m": 0.0035,
+      "ate_m": 7.83
+    },
+    "CNN_GRU_MMAG_features": {
+      "trel_percent": 0.0164,
+      "rrel_deg_per_100m": 0.0022,
+      "ate_m": 5.21
+    },
+    "Simple_average": {
+      "trel_percent": 0.0122,
+      "rrel_deg_per_100m": 0.0017,
+      "ate_m": 3.89
+    },
+    "Uncertainty_fusion": {
+      "trel_percent": 0.0108,
+      "rrel_deg_per_100m": 0.0014,
+      "ate_m": 3.52
+    }
+  },
+  "runtime_table_9_ms": {
+    "MMAG_inference": 42.3,
+    "ORB_SLAM2_tracking": 25.3,
+    "CNN_GRU_inference": 9.8,
+    "Pose_fusion": 0.5,
+    "Data_transfer": 9.8,
+    "Total": 87.7,
+    "FPS": 11.4
+  }
+}

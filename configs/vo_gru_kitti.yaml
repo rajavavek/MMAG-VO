@@ -1,0 +1,26 @@
+seed: 42
+device: cuda
+image_size: [384, 640]
+sequence_length: 5
+model:
+  input_channels: 256
+  hidden_size: 512
+  num_layers: 2
+  dropout: 0.2
+  max_translation: 5.0
+training:
+  epochs: 80
+  batch_size: 2
+  num_workers: 4
+  optimizer: adamw
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  beta_rotation: 100.0
+  grad_clip_norm: 5.0
+  amp: true
+data:
+  train_sequences: ["00", "01", "02", "05", "06", "07", "08"]
+  val_sequences: ["03", "04", "09", "10"]
+checkpoint:
+  save_every: 5
+  monitor: val_loss
